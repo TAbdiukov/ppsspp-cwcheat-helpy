@@ -1,0 +1,6 @@
+## Todo
+
+* "Helpy greets you!" should become "ppsspp-patches-helpy (version)" in preparation to being packaged as a PYPI packaged
+* Color output using colorama
+* Newline
+

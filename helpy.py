@@ -26,13 +26,17 @@ class Helpy:
       - Preserve command type, values, and comments; only swap the address.
       - Keep printing to stdout and copying to clipboard when the user copies
         a PSP address (e.g., 08801234) to the clipboard.
+
+    Startup niceties:
+      - Always print a one-off example (preview) even with no arguments.
+      - Show the acceptable PSP address range based on 28-bit cwCheat window.
     """
 
-    # PSP user-space base used by cwCheat address math (matches the original script)
+    # PSP user-space base used by cwCheat address math
     PSP_BASE = 0x08800000
 
     # Useful default for constant 32-bit write (type 0x2)
-    OP_EDIT_4BYTES = 0x20000000
+    OPCODE_EDIT_4BYTES = 0x20000000
 
     # Regex to pull two hex words and an optional // comment from a cwCheat line
     CHEAT_LINE_RE = re.compile(
@@ -183,9 +187,9 @@ class Helpy:
 
     def _init_default_template(self):
         """Fallback when no/invalid argument is provided."""
-        self.template_w1 = self.OP_EDIT_4BYTES  # 0x20000000 -> 0x2AAAAAAA when filled
+        self.template_w1 = self.OPCODE_EDIT_4BYTES  # 0x20000000 -> 0x2AAAAAAA when filled
         self.template_w2 = 0x01234567
-        self.comment = "Helpy-automated: set address to 0x01234567"
+        self.comment = "helpy-automated: set address to 0x01234567"
         self.addr_slot = "w1"
         self.initialized = True
         return (
@@ -227,7 +231,19 @@ class Helpy:
         preview = self._with_address_offset(offset)
         print("▒Preview with a random valid address:")
         print(preview)
-        pyperclip.copy(preview)
+        print("") # for newline
+
+    # ----------------------- startup info ------------------------------
+
+    def _print_acceptable_address_range(self):
+        """
+        Informative banner showing the PSP addresses this tool will accept,
+        derived from the 28-bit cwCheat offset window.
+        """
+        min_addr = self.PSP_BASE
+        max_addr = self.PSP_BASE + 0x0FFFFFFF  # inclusive
+        print(f"Acceptable PSP address range: {self._hex32(min_addr)} - {self._hex32(max_addr)} (inclusive)")
+        print("Accepted input formats: 08801234 or 0x08801234")
 
     # --------------------------- main loop -----------------------------
 
@@ -250,7 +266,6 @@ class Helpy:
         if err:
             pay = f"*Invalid PSP address: {s} ({err})"
             print("▒Output:\n" + pay)
-            pyperclip.copy(pay)
             return True
 
         payload = self._with_address_offset(offset)
@@ -261,24 +276,34 @@ class Helpy:
     def run(self):
         print(self.PROGRAM_NAME + " greets you!")
         print("How to: Just copy a PSP address like 08801234 to the clipboard.")
+        # Always show the acceptable range at startup
+        self._print_acceptable_address_range()
 
         # Join all args beyond script name into one string to keep comments intact
         argline = " ".join(sys.argv[1:]).strip()
 
-        ok, msg = self._init_from_argument(argline) if argline else (False, "")
-        if not ok:
-            if argline and "doesn't expose" in msg:
-                # Valid parse but no address field -> inform and exit
-                print(msg)
-                sys.exit(2)
-            # Fallback to default template
+        recognized_by_arg = False
+        if argline:
+            ok, msg = self._init_from_argument(argline)
+            recognized_by_arg = ok
+            if not ok:
+                if "doesn't expose" in msg:
+                    # Valid parse but no address field -> inform and exit
+                    print(msg)
+                    sys.exit(2)
+                # Fallback to default template
+                ok, msg = self._init_default_template()
+        else:
             ok, msg = self._init_default_template()
 
         print(msg)
 
-        # If user provided a recognizable pattern, show what we caught
-        if argline and self.initialized:
-            print("Pattern recognized: I will preserve the opcode, parameters, values, and any comments.")
+        # Always show a preview example, even with no arguments.
+        if self.initialized:
+            if recognized_by_arg:
+                print("Pattern recognized: I will preserve the opcode, parameters, values, and any comments.")
+            else:
+                print("No recognizable cwCheat line provided; default template is active.")
             self._preview_random()
 
         # Clipboard watcher

@@ -26,7 +26,9 @@ class Helpy:
     Helpy: cwCheat address rewriter.
 
     Behavior:
-      - On startup, optionally parse a cwCheat line passed as arguments.
+      - On startup, optionally parse:
+          * a cwCheat line (two 32-bit hex words, optional leading "_L", optional // comment), or
+          * a SINGLE OPCODE NIBBLE (e.g., "2", "E", or "0x2") to use as a template.
       - Detect which 32-bit word carries the 28-bit address field ("AAAAAAA").
       - Preserve command type, values, and comments; only swap the address.
       - Keep printing to stdout and copying to clipboard when the user copies
@@ -50,6 +52,15 @@ class Helpy:
         (?P<w1>0x[0-9a-fA-F]{1,8}|[0-9a-fA-F]{1,8})\s+     # first 32-bit word
         (?P<w2>0x[0-9a-fA-F]{1,8}|[0-9a-fA-F]{1,8})        # second 32-bit word
         (?:\s*//\s*(?P<comment>.*))?                       # optional // comment
+        \s*$""",
+        re.VERBOSE,
+    )
+
+    # Regex for opcode-only input, allowing optional 0x and optional // comment
+    OPCODE_ONLY_RE = re.compile(
+        r"""
+        ^\s*(?:0x)?(?P<op>[0-9a-fA-F])\s*                  # single hex nibble
+        (?:\/\/\s*(?P<comment>.*))?                        # optional // comment
         \s*$""",
         re.VERBOSE,
     )
@@ -147,48 +158,82 @@ class Helpy:
             0x2: "Constant write (32-bit)",
             0x3: "Increment/Decrement",
             0x4: "Multi-write (word)",
+            0x5: "Misc/other",
             0x6: "Pointer write",
             0x7: "Boolean op",
             0x8: "Multi-write (byte/halfword)",
+            0x9: "Misc/other",
+            0xA: "Misc/other",
+            0xB: "Misc/other",
+            0xC: "Misc/other",
             0xD: "Conditional (single-line)",
             0xE: "Conditional (multi-skip)",
+            0xF: "Misc/other",
         }.get(nib, "Unknown/other")
 
     # ------------------------ initialization ---------------------------
 
-    def _init_from_argument(self, argline):
+    def _init_from_opcode(self, op_nibble, comment=None):
         """
-        Initialize the rewrite template from a provided cwCheat line.
-        Returns (ok: bool, message: str)
+        Initialize using only an opcode nibble as the template selector.
+        Determines the likely address slot and seeds w2 with a visible placeholder.
         """
-        m = self.CHEAT_LINE_RE.match(argline or "")
-        if not m:
-            return False, "No/invalid cwCheat line; using default template."
-
-        w1 = self._parse_hex_word(m.group("w1"))
-        w2 = self._parse_hex_word(m.group("w2"))
-        if w1 is None or w2 is None:
-            return False, "Invalid hex words; using default template."
-
-        addr_slot = self._detect_address_slot(w1, w2)
-        if addr_slot is None:
-            msg = "The provided instruction doesn't expose a replaceable address field."
-            return False, msg
-
-        self.template_w1 = self._to_u32(w1)
-        self.template_w2 = self._to_u32(w2)
-        self.comment = (m.group("comment") or "").strip()
-        self.addr_slot = addr_slot
+        op_nibble &= 0xF
+        self.template_w1 = (op_nibble << 28)  # address bits will be filled later
+        self.template_w2 = 0x01234567         # placeholder value/params
+        # Heuristic: 0xE => address in w2; others (incl. 0xD) => w1
+        self.addr_slot = "w2" if op_nibble == 0xE else "w1"
+        self.comment = (comment or f"helpy-automated: opcode 0x{op_nibble:X} template").strip()
         self.initialized = True
 
-        op_desc = self._op_description(self._type_nibble(self.template_w1))
-        info = f"Detected cwCheat line (type 0x{self._type_nibble(self.template_w1):X}: {op_desc}). "
-        if addr_slot == "w1":
-            info += "Address field is in the FIRST 32-bit word."
-        else:
-            info += "Address field is in the SECOND 32-bit word."
+        op_desc = self._op_description(op_nibble)
+        which = "SECOND" if self.addr_slot == "w2" else "FIRST"
+        return True, f"Using opcode-only template: type 0x{op_nibble:X} ({op_desc}). Address field is in the {which} 32-bit word."
 
-        return True, info
+    def _init_from_argument(self, argline):
+        """
+        Initialize the rewrite template from a provided argument.
+        Accepts either a full cwCheat line or a single opcode nibble.
+        Returns (ok: bool, message: str)
+        """
+        s = argline or ""
+
+        # 1) Try full cwCheat line first
+        m = self.CHEAT_LINE_RE.match(s)
+        if m:
+            w1 = self._parse_hex_word(m.group("w1"))
+            w2 = self._parse_hex_word(m.group("w2"))
+            if w1 is None or w2 is None:
+                return False, "Invalid hex words; using default template."
+
+            addr_slot = self._detect_address_slot(w1, w2)
+            if addr_slot is None:
+                msg = "The provided instruction doesn't expose a replaceable address field."
+                return False, msg
+
+            self.template_w1 = self._to_u32(w1)
+            self.template_w2 = self._to_u32(w2)
+            self.comment = (m.group("comment") or "").strip()
+            self.addr_slot = addr_slot
+            self.initialized = True
+
+            op_desc = self._op_description(self._type_nibble(self.template_w1))
+            info = f"Detected cwCheat line (type 0x{self._type_nibble(self.template_w1):X}: {op_desc}). "
+            if addr_slot == "w1":
+                info += "Address field is in the FIRST 32-bit word."
+            else:
+                info += "Address field is in the SECOND 32-bit word."
+            return True, info
+
+        # 2) Fallback: try opcode-only shorthand (with optional // comment)
+        m2 = self.OPCODE_ONLY_RE.match(s)
+        if m2:
+            op_nib = int(m2.group("op"), 16)
+            comment = (m2.group("comment") or "").strip()
+            return self._init_from_opcode(op_nib, comment)
+
+        # 3) Neither matched
+        return False, "No/invalid cwCheat line or opcode; using default template."
 
     def _init_default_template(self):
         """Fallback when no/invalid argument is provided."""

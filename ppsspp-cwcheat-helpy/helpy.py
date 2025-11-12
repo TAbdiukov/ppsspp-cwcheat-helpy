@@ -369,6 +369,8 @@ class Helpy:
         except KeyboardInterrupt:
             print("\nExiting...", end="")
 
+    def main():
+        Helpy().run()
 
 if __name__ == "__main__":
     Helpy().run()

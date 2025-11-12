@@ -18,7 +18,7 @@ except ModuleNotFoundError:
 try:
     from . import __app_name__, __version__
 except (ImportError, ModuleNotFoundError) as e:
-    __app_name__, __version__ = "ppsspp-swcheat-helpy"
+    __app_name__ = "ppsspp-swcheat-helpy"
     __version__ = "0.1.0-local"
 
 class Helpy:
@@ -236,7 +236,7 @@ class Helpy:
         preview = self._with_address_offset(offset)
         print("▒Preview with a random valid address:")
         print(preview)
-        print("") # for newline
+        print("-"*60) # for newline
 
     # ----------------------- startup info ------------------------------
 

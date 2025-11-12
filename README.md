@@ -22,7 +22,7 @@ Copies a PSP virtual address from your clipboard, converts it to the cwCheat 28-
 
 ## What this does
 
-Most cwCheat commands encode a **28-bit address field** (“AAAAAAA”) inside one of the two 32-bit words of a cheat line. When you’re hunting values in PPSSPP or on hardware, you often need to keep swapping different PSP addresses into the **same** cheat template. Doing this by hand is tedious and error-prone.
+Most cwCheat commands encode a **28-bit address field** ('AAAAAAA') inside one of the two 32-bit words of a cheat line. When youâ€™re hunting values in PPSSPP or on hardware, you often need to keep swapping different PSP addresses into the **same** cheat template. Doing this by hand is tedious and error-prone.
 
 This tool lets you:
 
@@ -43,7 +43,7 @@ This tool lets you:
   - Shows a preview line using a random valid address.
 
 - Then it **watches the clipboard**. When it sees a PSP address (`08801234` or `0x08801234`), it:
-  - Validates that it’s within the cwCheat addressable window.
+  - Validates that it's within the cwCheat addressable window.
   - Converts PSP ? cwCheat offset: `offset = PSP - 0x08800000`.
   - Rewrites the template, preserving the opcode nibble, values, and any `// comment`.
   - Prints the new line and copies it back to the clipboard.
@@ -84,7 +84,7 @@ Run:
 ppsspp-cwcheat-helpy
 ```
 
-You’ll see:
+You'll see:
 
 ```
 ppsspp-cwcheat-helpy 0.2.0
@@ -147,7 +147,7 @@ comment = "helpy-automated: set address to 0x01234567"
   ```
   0x08800000 .. 0x187FFFFF   (inclusive)
   ```
-* Accepted clipboard formats: `08801234` or `0x08801234` (7–8 hex digits).
+* Accepted clipboard formats: `08801234` or `0x08801234` (7-8 hex digits).
 
 If the address is invalid, Helpy prints an informative error and continues watching the clipboard.
 
@@ -157,7 +157,7 @@ If the address is invalid, Helpy prints an informative error and continues watch
 
 Heuristics used to decide where to place the 28-bit address (AAAAAAA):
 
-| Opcode top nibble | Meaning (short)             | Address goes to…                   |
+| Opcode top nibble | Meaning (short)             | Address goes to                   |
 | ----------------- | --------------------------- | ---------------------------------- |
 | `0x0`             | Constant write (8-bit)      | **w1**                             |
 | `0x1`             | Constant write (16-bit)     | **w1**                             |
@@ -245,13 +245,13 @@ Helpy keeps watching for the next clipboard change.
 
 * **Nothing happens when I copy an address**
 
-  * Make sure the address is `088xxxxx` … `187xxxxx` and is 7–8 hex digits.
+  * Make sure the address is `088xxxxx` ... `187xxxxx` and is 7-8 hex digits.
   * The tool only reacts when the clipboard **changes**. Try copying again.
   * On Linux, ensure `wl-copy/wl-paste` (Wayland) or `xclip`/`xsel` (X11) is installed.
 
 * **Clipboard content gets overwritten**
 
-  * That’s intended: when Helpy recognizes a PSP address, it copies the new cwCheat line to your clipboard for quick paste back into your cheat file.
+  * That's intended: when Helpy recognizes a PSP address, it copies the new cwCheat line to your clipboard for quick paste back into your cheat file.
 
 ---
 

@@ -18,7 +18,7 @@ except ModuleNotFoundError:
 try:
     from . import __app_name__, __version__
 except (ImportError, ModuleNotFoundError) as e:
-    __app_name__ = "ppsspp-swcheat-helpy"
+    __app_name__ = "ppsspp-cwcheat-helpy"
     __version__ = "0.1.0-local"
 
 class Helpy:
@@ -36,7 +36,7 @@ class Helpy:
 
     Startup niceties:
       - Always print a one-off example (preview) even with no arguments.
-      - Show the acceptable PSP address range based on 28-bit cwCheat window.
+      - Show the acceptable cwCheat address range based on 28-bit cwCheat window.
     """
 
     # PSP user-space base used by cwCheat address math
@@ -292,7 +292,7 @@ class Helpy:
         """
         min_addr = self.PSP_BASE
         max_addr = self.PSP_BASE + 0x0FFFFFFF  # inclusive
-        print(f"Acceptable PSP address range: {self._hex32(min_addr)} - {self._hex32(max_addr)} (inclusive)")
+        print(f"Acceptable cwCheat address range: {self._hex32(min_addr)} - {self._hex32(max_addr)} (inclusive)")
         print("Accepted input formats: 08801234 or 0x08801234")
 
     # --------------------------- main loop -----------------------------

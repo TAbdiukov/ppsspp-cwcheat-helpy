@@ -3,7 +3,7 @@ requires = ["setuptools>=70", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "ppsspp-swcheat-helpy"
+name = "ppsspp-cwcheat-helpy"
 dynamic = ["version"]
 description = "cwCheat address rewriter for PSP/PPSSPP cheat lines"
 readme = "README.md"
@@ -22,11 +22,11 @@ dependencies = [
 ]
 
 [project.urls]
-Homepage = "https://github.com/TAbdiukov/ppsspp-swcheat-helpy"
-Issues = "https://github.com/TAbdiukov/ppsspp-swcheat-helpy/issues"
+Homepage = "https://github.com/TAbdiukov/ppsspp-cwcheat-helpy"
+Issues = "https://github.com/TAbdiukov/ppsspp-cwcheat-helpy/issues"
 
 [project.scripts]
-ppsspp-swcheat-helpy = "ppsspp_swcheat_helpy.helpy:main"
+ppsspp-cwcheat-helpy = "ppsspp_cwcheat_helpy.helpy:main"
 
 [tool.setuptools.dynamic]
-version = { attr = "ppsspp_swcheat_helpy.__version__" }
+version = { attr = "ppsspp_cwcheat_helpy.__version__" }

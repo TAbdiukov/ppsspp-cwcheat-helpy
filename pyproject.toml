@@ -13,9 +13,17 @@ keywords = ["ppsspp", "psp", "cwcheat", "gaming"]
 classifiers = [
   "Programming Language :: Python :: 3",
   "Operating System :: OS Independent",
-  "Environment :: Console",
   "Topic :: Games/Entertainment",
   "Topic :: Utilities"
+  "Topic :: Software Development :: Build Tools",
+  "Topic :: Software Development :: Disassemblers",
+  "Topic :: Security",
+  "Development Status :: 4 - Beta",
+  "Environment :: Console",
+  "Development Status :: 4 - Beta",
+  "Environment :: Console",
+  "Intended Audience :: Developers",
+  "Intended Audience :: Science/Research",
 ]
 dependencies = [
   "pyperclip>=1.9.0,<2"

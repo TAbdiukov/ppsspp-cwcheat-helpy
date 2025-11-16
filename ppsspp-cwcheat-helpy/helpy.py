@@ -369,8 +369,10 @@ class Helpy:
         except KeyboardInterrupt:
             print("\nExiting...", end="")
 
-    def main():
-        Helpy().run()
+def main():
+    """Entry point for console_script and `python -m`."""
+    Helpy().run()
 
 if __name__ == "__main__":
-    Helpy().run()
+    main()
+

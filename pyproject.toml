@@ -5,7 +5,7 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "ppsspp-cwcheat-helpy"
 dynamic = ["version"]
-description = "cwCheat address rewriter for PSP/PPSSPP cheat lines"
+description = "cwCheat address rewriter for PSP/PPSSPP memory patch lines"
 readme = "README.md"
 requires-python = ">=3.8"
 authors = [{ name = "Tim Abdiukov", email = "TAbdiukov@gmail.com" }]

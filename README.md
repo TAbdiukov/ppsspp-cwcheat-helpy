@@ -1,7 +1,7 @@
 # ppsspp-cwcheat-helpy
 
-[![GitHub](https://img.shields.io/badge/GitHub-TAbdiukov/ppsspp--cwcheat--helpy?logo=github)](https://github.com/TAbdiukov/ppsspp-cwcheat-helpy)
-[![PyPI – Version](https://img.shields.io/pypi/v/ppsspp-cwcheat-helpy.svg)](https://pypi.org/project/ppsspp-cwcheat-helpy) 
+[![GitHub](https://img.shields.io/badge/GitHub-TAbdiukov/ppsspp--cwcheat--helpy-black?logo=github)](https://github.com/TAbdiukov/ppsspp-cwcheat-helpy)
+[![PyPI Version](https://img.shields.io/pypi/v/ppsspp-cwcheat-helpy.svg)](https://pypi.org/project/ppsspp-cwcheat-helpy) 
 ![License](https://img.shields.io/github/license/TAbdiukov/ppsspp-cwcheat-helpy)
 [![Buy Me A Coffee](https://img.shields.io/badge/Buy%20Me%20a%20Coffee-ffdd00?&logo=buy-me-a-coffee&logoColor=black)](https://buymeacoffee.com/tabdiukov)
 
